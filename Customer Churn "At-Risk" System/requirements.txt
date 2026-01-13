@@ -1,5 +1,0 @@
-streamlit
-pandas
-numpy==1.26.4
-xgboost
-scikit-learn
