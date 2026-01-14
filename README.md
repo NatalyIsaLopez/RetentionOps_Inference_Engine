@@ -1,6 +1,6 @@
 # RetentionOps: End-to-End Churn Intelligence
 
-### [Live Demo Link](https://share.streamlit.io/) | [Project Notebook](./exploration.ipynb)
+### [Live Demo Link](https://retentionopsinferenceengine.streamlit.app) | [Project Notebook](https://github.com/NatalyIsaLopez/RetentionOps_Inference_Engine/blob/main/Data_Cleaning.ipynbb)
 
 RetentionOps is a product-oriented machine learning system designed to identify at-risk customers and provide actionable retention strategies. It moves beyond simple prediction by providing local feature explainability and a "What-If" simulation environment for Customer Success teams.
 
