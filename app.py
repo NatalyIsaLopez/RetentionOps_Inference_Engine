@@ -1,3 +1,7 @@
+Here is your finalized, fully updated app.py. I’ve standardized all logic to the 0.5 (50%) threshold, made the UI fully reactive, and cleaned up the "Strategic Recommendations" to match professional industry standards.
+
+Python
+
 import streamlit as st
 import pandas as pd
 import xgboost as xgb
@@ -13,7 +17,6 @@ st.markdown("""
     .stApp { background-color: #0F172A; }
     .block-container { padding: 2rem 3rem !important; }
     
-    /* Targets Streamlit containers to look like cards */
     [data-testid="stVerticalBlockBorderWrapper"] > div > div {
         background-color: #1E293B;
         border: 1px solid #334155;
@@ -61,7 +64,7 @@ model, mappings, model_features = load_assets()
 # 4. Sidebar: Control Panel
 with st.sidebar:
     st.markdown("### 🛡️ RetentionOps")
-    st.caption("v1.0.2 • System Active")
+    st.caption("v1.0.3 • Production Ready")
     st.divider()
     
     st.markdown("### 👤 User Profile")
@@ -97,12 +100,12 @@ if model:
     # --- Grid Layout ---
     col_left, col_right = st.columns([1, 1.5], gap="large")
 
-with col_left:
+    with col_left:
         with st.container(border=True):
             st.markdown('<p class="card-label">Churn Risk Probability</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="main-metric">{prob:.1%}</p>', unsafe_allow_html=True)
             
-            # --- UPDATED THRESHOLD LOGIC ---
+            # --- STANDARDIZED 0.5 THRESHOLD LOGIC ---
             if prob >= 0.5:
                 badge_color, badge_text = "#F87171", "High Risk / Action Required"
             elif prob >= 0.2:
@@ -111,13 +114,13 @@ with col_left:
                 badge_color, badge_text = "#34D399", "Stable Profile"
                 
             st.markdown(f'<span style="color: {badge_color}; border: 1px solid {badge_color}; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">{badge_text}</span>', unsafe_allow_html=True)
-            
+            st.markdown('<p class="sub-text">Classification threshold: 0.5</p>', unsafe_allow_html=True)
 
     with col_right:
         with st.container(border=True):
-            st.markdown('<p class="card-label">Feature Impact Analysis</p>', unsafe_allow_html=True)
+            st.markdown('<p class="card-label">Dynamic Feature Impact</p>', unsafe_allow_html=True)
             
-            # Representative feature weights for visualization
+            # Simulated Impact calculation for visual feedback
             attr_data = pd.DataFrame({
                 'Feature': ['Tenure', 'Monthly', 'Contract', 'Support'],
                 'Impact': [tenure/-72, monthly/150, 0.6 if contract == 'Month-to-month' else -0.4, 0.2 if tech_support == 'No' else -0.2]
@@ -125,25 +128,25 @@ with col_left:
             
             st.bar_chart(attr_data, color="#3B82F6", height=215)
 
-    # 6. Dynamic Recommendation Section
+    # 6. Strategic Tabs
     st.markdown("<br>", unsafe_allow_html=True)
     t1, t2 = st.tabs(["💡 Strategic Recommendations", "🔬 Technical Metadata"])
     
-with t1:
+    with t1:
         if prob >= 0.5:
-            st.warning(f"**Critical Threshold Reached ({prob:.1%}):** This customer is statistically likely to churn. Immediate retention offer is recommended.")
+            st.warning(f"**High Risk Intervention:** Customer has crossed the {prob:.1%} probability threshold. Recommend an immediate 'Retention Offer' (e.g., 12-month contract lock-in with 15% discount).")
         elif prob >= 0.2:
-            st.info(f"**Pre-emptive Awareness ({prob:.1%}):** Risk is growing. Consider a 'health check' call or service satisfaction survey.")
+            st.info(f"**Preventative Monitoring:** Risk is elevated at {prob:.1%}. Recommend a proactive 'Service Health Check' email and evaluation of technical support needs.")
         else:
-            st.success(f"**Healthy Account ({prob:.1%}):** Low friction detected. Focus on upselling value-added services.")
-            
+            st.success(f"**Growth Strategy:** Profile is stable ({prob:.1%}). Customer is a prime candidate for long-term loyalty rewards or premium service cross-selling.")
 
     with t2:
         st.json({
-            "model_version": "1.0.2-XGB",
-            "feature_vector": input_dict,
-            "probability_raw": prob,
-            "status": "Inference Successful"
+            "model_architecture": "XGBoost (Extreme Gradient Boosting)",
+            "classification_threshold": 0.5,
+            "probability_raw": round(prob, 4),
+            "feature_vector_input": input_dict,
+            "system_status": "Stable"
         })
 else:
     st.error("Assets missing. Ensure 'churn_model.pkl' and 'mappings.pkl' are in the root directory.")
