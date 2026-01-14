@@ -13,7 +13,7 @@ st.markdown("""
     .stApp { background-color: #0F172A; }
     .block-container { padding: 2rem 3rem !important; }
     
-    /* This targets Streamlit's native containers to look like cards */
+    /* Targets Streamlit containers to look like cards */
     [data-testid="stVerticalBlockBorderWrapper"] > div > div {
         background-color: #1E293B;
         border: 1px solid #334155;
@@ -21,7 +21,6 @@ st.markdown("""
         padding: 20px;
     }
 
-    /* Formatting the text inside our 'cards' */
     .card-label {
         color: #94A3B8;
         font-size: 0.75rem;
@@ -53,7 +52,8 @@ def load_assets():
         with open('mappings.pkl', 'rb') as f:
             mappings = pickle.load(f)
         return model, mappings, model.get_booster().feature_names
-    except:
+    except Exception as e:
+        st.error(f"Error loading assets: {e}")
         return None, None, None
 
 model, mappings, model_features = load_assets()
@@ -64,22 +64,28 @@ with st.sidebar:
     st.caption("v1.0.2 • System Active")
     st.divider()
     
+    st.markdown("### 👤 User Profile")
     contract = st.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
     tenure = st.slider("Tenure (Months)", 1, 72, 24)
-    internet = st.selectbox("Service Tier", ["Fiber optic", "DSL", "No"])
+    
+    st.markdown("### ⚙️ Services")
+    internet = st.selectbox("Internet Service", ["Fiber optic", "DSL", "No"])
     monthly = st.number_input("Monthly Revenue ($)", 18.0, 150.0, 70.0)
-    tech_support = st.radio("Support Plan", ["Yes", "No", "No internet service"], horizontal=True)
+    tech_support = st.radio("Tech Support Plan", ["Yes", "No", "No internet service"], horizontal=True)
     
     st.divider()
-    predict_btn = st.button("RUN INFERENCE", type="primary", use_container_width=True)
+    st.info("The dashboard updates automatically as you adjust parameters.")
 
 # 5. Main Content Area
 if model:
-    # --- Prediction Logic ---
+    # --- Prediction Engine (Dynamic Calculation) ---
     input_dict = {feat: [0] for feat in model_features} 
     input_dict.update({
-        'tenure': [tenure], 'MonthlyCharges': [monthly], 'TotalCharges': [tenure * monthly],
-        'Contract': [mappings['Contract'][contract]], 'InternetService': [mappings['InternetService'][internet]],
+        'tenure': [tenure], 
+        'MonthlyCharges': [monthly], 
+        'TotalCharges': [tenure * monthly],
+        'Contract': [mappings['Contract'][contract]], 
+        'InternetService': [mappings['InternetService'][internet]],
         'TechSupport': [mappings['TechSupport'][tech_support]]
     })
     input_df = pd.DataFrame(input_dict)[model_features]
@@ -88,45 +94,56 @@ if model:
     # --- Header ---
     st.markdown("### Executive Summary")
     
-    # --- Grid Layout using st.container for the "Box" look ---
+    # --- Grid Layout ---
     col_left, col_right = st.columns([1, 1.5], gap="large")
 
     with col_left:
-        with st.container(border=True): # This 'border=True' works with our CSS
+        with st.container(border=True):
             st.markdown('<p class="card-label">Churn Risk Probability</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="main-metric">{prob:.1%}</p>', unsafe_allow_html=True)
             
-            badge_color = "#F87171" if prob > 0.5 else "#34D399"
-            badge_text = "Action Required" if prob > 0.5 else "Stable"
+            # Dynamic Badge logic
+            if prob > 0.6:
+                badge_color, badge_text = "#F87171", "Action Required"
+            elif prob > 0.3:
+                badge_color, badge_text = "#FBBF24", "Elevated Risk"
+            else:
+                badge_color, badge_text = "#34D399", "Stable Profile"
+                
             st.markdown(f'<span style="color: {badge_color}; border: 1px solid {badge_color}; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">{badge_text}</span>', unsafe_allow_html=True)
-            st.markdown('<p class="sub-text">Inference result based on session vector.</p>', unsafe_allow_html=True)
+            st.markdown('<p class="sub-text">Calculated via XGBoost Gradient Boosting.</p>', unsafe_allow_html=True)
 
     with col_right:
         with st.container(border=True):
-            st.markdown('<p class="card-label">Local Feature Importance</p>', unsafe_allow_html=True)
+            st.markdown('<p class="card-label">Feature Impact Analysis</p>', unsafe_allow_html=True)
             
-            # Prepare chart data
+            # Representative feature weights for visualization
             attr_data = pd.DataFrame({
                 'Feature': ['Tenure', 'Monthly', 'Contract', 'Support'],
                 'Impact': [tenure/-72, monthly/150, 0.6 if contract == 'Month-to-month' else -0.4, 0.2 if tech_support == 'No' else -0.2]
             }).set_index('Feature')
             
-            # This bar chart will now be forced inside the container styling
             st.bar_chart(attr_data, color="#3B82F6", height=215)
 
-    # 6. Bottom Tabs
+    # 6. Dynamic Recommendation Section
     st.markdown("<br>", unsafe_allow_html=True)
-    t1, t2 = st.tabs(["💡 Recommendations", "🔬 Technical Metadata"])
+    t1, t2 = st.tabs(["💡 Strategic Recommendations", "🔬 Technical Metadata"])
     
     with t1:
-        if prob > 0.5:
-            st.warning("**Retention Strategy:** High-risk customer. Intervention recommended.")
+        if prob > 0.6:
+            st.warning("**High Risk Intervention:** System recommends a 15% 'Loyalty Discount' and a proactive outreach from a Senior Success Manager.")
+        elif prob > 0.3:
+            st.info("**Preventative Care:** Customer is showing signs of friction. Recommend migrating to a 'One Year' contract for better price stability.")
         else:
-            st.success("**Retention Strategy:** Stable customer profile.")
+            st.success("**Growth Opportunity:** Customer is stable. Profile is eligible for premium service upsells or secondary line additions.")
 
     with t2:
-        st.json({"Pipeline": "XGBoost-v1", "Features": model_features})
-
+        st.json({
+            "model_version": "1.0.2-XGB",
+            "feature_vector": input_dict,
+            "probability_raw": prob,
+            "status": "Inference Successful"
+        })
 else:
-    st.error("Assets missing. Ensure 'churn_model.pkl' and 'mappings.pkl' are present.")
+    st.error("Assets missing. Ensure 'churn_model.pkl' and 'mappings.pkl' are in the root directory.")
     
