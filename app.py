@@ -1,7 +1,3 @@
-Here is your finalized, fully updated app.py. I’ve standardized all logic to the 0.5 (50%) threshold, made the UI fully reactive, and cleaned up the "Strategic Recommendations" to match professional industry standards.
-
-Python
-
 import streamlit as st
 import pandas as pd
 import xgboost as xgb
