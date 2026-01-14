@@ -97,21 +97,21 @@ if model:
     # --- Grid Layout ---
     col_left, col_right = st.columns([1, 1.5], gap="large")
 
-    with col_left:
+with col_left:
         with st.container(border=True):
             st.markdown('<p class="card-label">Churn Risk Probability</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="main-metric">{prob:.1%}</p>', unsafe_allow_html=True)
             
-            # Dynamic Badge logic
-            if prob > 0.6:
-                badge_color, badge_text = "#F87171", "Action Required"
-            elif prob > 0.3:
-                badge_color, badge_text = "#FBBF24", "Elevated Risk"
+            # --- UPDATED THRESHOLD LOGIC ---
+            if prob >= 0.5:
+                badge_color, badge_text = "#F87171", "High Risk / Action Required"
+            elif prob >= 0.2:
+                badge_color, badge_text = "#FBBF24", "Elevated Risk / Monitor"
             else:
                 badge_color, badge_text = "#34D399", "Stable Profile"
                 
             st.markdown(f'<span style="color: {badge_color}; border: 1px solid {badge_color}; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">{badge_text}</span>', unsafe_allow_html=True)
-            st.markdown('<p class="sub-text">Calculated via XGBoost Gradient Boosting.</p>', unsafe_allow_html=True)
+            
 
     with col_right:
         with st.container(border=True):
@@ -129,13 +129,14 @@ if model:
     st.markdown("<br>", unsafe_allow_html=True)
     t1, t2 = st.tabs(["💡 Strategic Recommendations", "🔬 Technical Metadata"])
     
-    with t1:
-        if prob > 0.6:
-            st.warning("**High Risk Intervention:** System recommends a 15% 'Loyalty Discount' and a proactive outreach from a Senior Success Manager.")
-        elif prob > 0.3:
-            st.info("**Preventative Care:** Customer is showing signs of friction. Recommend migrating to a 'One Year' contract for better price stability.")
+with t1:
+        if prob >= 0.5:
+            st.warning(f"**Critical Threshold Reached ({prob:.1%}):** This customer is statistically likely to churn. Immediate retention offer is recommended.")
+        elif prob >= 0.2:
+            st.info(f"**Pre-emptive Awareness ({prob:.1%}):** Risk is growing. Consider a 'health check' call or service satisfaction survey.")
         else:
-            st.success("**Growth Opportunity:** Customer is stable. Profile is eligible for premium service upsells or secondary line additions.")
+            st.success(f"**Healthy Account ({prob:.1%}):** Low friction detected. Focus on upselling value-added services.")
+            
 
     with t2:
         st.json({
